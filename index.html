@@ -1,0 +1,592 @@
+!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>HR Assistant AI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0ede8;
+    --surface: #faf8f5;
+    --card: #ffffff;
+    --accent: #2d6a4f;
+    --accent2: #40916c;
+    --gold: #b5834a;
+    --text: #1a1a1a;
+    --text2: #555;
+    --text3: #999;
+    --border: #e0dbd3;
+    --user-bg: #2d6a4f;
+    --ai-bg: #ffffff;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow);
+    z-index: 10;
+  }
+
+  .header-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .header-text h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.1rem;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .header-text p {
+    font-size: 0.72rem;
+    color: var(--text3);
+    margin-top: 1px;
+  }
+
+  .lang-btn {
+    margin-left: auto;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lang-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* ── QUICK TOPICS ── */
+  .topics {
+    padding: 12px 16px 8px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .topics::-webkit-scrollbar { display: none; }
+
+  .topic-chip {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .topic-chip:hover, .topic-chip.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* ── CHAT ── */
+  .chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+  }
+
+  .welcome {
+    text-align: center;
+    padding: 24px 16px;
+    color: var(--text2);
+  }
+welcome-icon {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+  }
+
+  .welcome h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .welcome p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text2);
+    max-width: 300px;
+    margin: 0 auto 20px;
+  }
+
+  .quick-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .qq-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.4;
+  }
+  .qq-btn:hover {
+    border-color: var(--accent);
+    background: #f0f7f4;
+    color: var(--accent);
+  }
+
+  /* Messages */
+  .msg {
+    display: flex;
+    gap: 10px;
+    max-width: 100%;
+    animation: msgIn 0.3s ease;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .msg.ai .msg-avatar { background: linear-gradient(135deg, var(--accent), var(--accent2)); }
+  .msg.user .msg-avatar { background: linear-gradient(135deg, var(--gold), #d4a055); }
+
+  .msg-bubble {
+    max-width: calc(100% - 80px);
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+
+  .msg.ai .msg-bubble {
+    background: var(--card);
+    color: var(--text);
+    border-radius: 4px 16px 16px 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--user-bg);
+    color: white;
+    border-radius: 16px 4px 16px 16px;
+  }
+
+  .msg-bubble b, .msg-bubble strong { color: var(--accent); font-weight: 600; }
+  .msg.user .msg-bubble b,
+  .msg.user .msg-bubble strong { color: #a8e6c8; }
+
+  .typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 16px;
+    background: var(--card);
+    border-radius: 4px 16px 16px 16px;
+    box-shadow: var(--shadow);
+    width: fit-content;
+  }
+
+  .typing span {
+    width: 6px; height: 6px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* ── INPUT ── */
+  .input-area {
+    padding: 12px 16px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .geo-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .geo-btn {
+    flex: 1;
+    padding: 7px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    font-size: 0.72rem;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+  }
+  .geo-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+textarea {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--card);
+    resize: none;
+    outline: none;
+    min-height: 48px;
+    max-height: 120px;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text3); }
+
+  .send-btn {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(45,106,79,0.35);
+  }
+  .send-btn:hover { transform: scale(1.05); }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-icon">👔</div>
+  <div class="header-text">
+    <h1>HR Assistant AI</h1>
+    <p>Labour law · Hiring · Contracts · Ukraine & World</p>
+  </div>
+  <button class="lang-btn" onclick="cycleLang()">🌐 EN</button>
+</div>
+
+<!-- TOPICS -->
+<div class="topics">
+  <div class="topic-chip" onclick="setTopic('hiring')">🔍 Hiring</div>
+  <div class="topic-chip" onclick="setTopic('contracts')">📄 Contracts</div>
+  <div class="topic-chip" onclick="setTopic('dismissal')">🚪 Dismissal</div>
+  <div class="topic-chip" onclick="setTopic('vacation')">🏖️ Vacation</div>
+  <div class="topic-chip" onclick="setTopic('payroll')">💰 Payroll</div>
+  <div class="topic-chip" onclick="setTopic('remote')">🌍 Remote Work</div>
+  <div class="topic-chip" onclick="setTopic('kpi')">📊 KPI</div>
+  <div class="topic-chip" onclick="setTopic('onboarding')">🚀 Onboarding</div>
+</div>
+
+<!-- CHAT -->
+<div class="chat" id="chat">
+  <div class="welcome" id="welcome">
+    <div class="welcome-icon">👔</div>
+    <h2>Your HR Expert</h2>
+    <p>Ask anything about HR — Ukrainian labour law, international standards, contracts, hiring, dismissal, remote work.</p>
+    <div class="quick-questions">
+      <button class="qq-btn" onclick="ask('What are the mandatory clauses in an employment contract in Ukraine?')">📄 Mandatory clauses in Ukrainian employment contract</button>
+      <button class="qq-btn" onclick="ask('How to properly dismiss an employee in Ukraine?')">🚪 How to properly dismiss an employee in Ukraine?</button>
+      <button class="qq-btn" onclick="ask('What is the minimum notice period for resignation in IT companies?')">⏰ Notice period for resignation in IT</button>
+      <button class="qq-btn" onclick="ask('How to structure KPIs for a software developer?')">📊 KPIs for software developer</button>
+    </div>
+  </div>
+</div>
+
+<!-- INPUT -->
+<div class="input-area">
+  <div class="geo-toggle">
+    <button class="geo-btn active" id="geo-ua" onclick="setGeo('ua')">🇺🇦 Ukraine</button>
+    <button class="geo-btn" id="geo-world" onclick="setGeo('world')">🌍 International</button>
+    <button class="geo-btn" id="geo-both" onclick="setGeo('both')">🔄 Both</button>
+  </div>
+  <div class="input-row">
+    <textarea id="input" placeholder="Ask your HR question..." rows="1"
+      onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<script>
+let currentLang = 'en';
+let currentGeo = 'ua';
+let isLoading = false;
+const langs = ['en', 'uk', 'ru'];
+const langLabels = { en: '🌐 EN', uk: '🌐 UA', ru: '🌐 RU' };
+
+const systemPrompts = {
+  ua: `You are an expert HR assistant specializing in Ukrainian labour law and IT industry HR practices.
+
+You have deep knowledge of:
+- Ukrainian Labour Code (Кодекс законів про працю України)
+- Law on Employment of Population (Закон про зайнятість населення)
+- Individual Employment Contracts regulation
+- Ukrainian IT industry specifics: FOP (ФОП), gig contracts, outstaffing
+- Minimum wage, overtime rules, vacation (28 days standard), sick leave
+- Probation periods (max 3 months standard, 6 months for executives)
+- Dismissal procedures: mandatory warnings, severance pay, work-book entries
+- Remote work regulation in Ukraine (post-2020 amendments)
+- Military mobilization HR implications (2022-present)
+- Payroll taxes: unified social tax (ЄСВ 22%), personal income tax (18%), military levy (1.5%)
+
+Always cite specific articles of Ukrainian legislation when relevant.
+Answer in the language the user writes in (Ukrainian, Russian, or English).
+Be practical, specific, and give step-by-step guidance when needed.`,
+
+  world: `You are an expert HR assistant with comprehensive knowledge of international labour law and global IT industry HR practices.
+
+You have deep knowledge of:
+- EU Labour Law directives and regulations
+- US HR practices: at-will employment, FLSA, FMLA, ADA, EEO
+- UK employment law: Employment Rights Act, statutory notice periods
+- Remote work policies: international contractor agreements, EOR (Employer of Record)
+- GDPR implications for HR data management
+- International employment contracts, NDA, non-compete clauses
+- Global compensation benchmarking for IT roles
+- Visa and work permit processes (EU Blue Card, US H1B, UK Skilled Worker)
+- IT industry specifics: equity compensation, stock options, RSUs
+- Performance management, OKRs, KPIs for tech teams
+- Diversity, equity and inclusion best practices
+
+Answer in the language the user writes in.
+Be practical and jurisdiction-specific when asked about a particular country.`,
+
+  both: `You are a senior HR consultant with expertise in both Ukrainian labour law and international HR practices, specializing in IT companies.
+
+You provide comprehensive HR guidance covering:
+UKRAINE: Labour Code, FOP/gig contracts, ЄСВ/ПДФО/військовий збір, vacation (28 days), dismissal procedures, remote work law, wartime HR regulations
+INTERNATIONAL: EU directives, US/UK employment law, remote work policies, EOR, international contracts, GDPR, equity compensation
+
+For each question, clearly indicate which jurisdiction applies or compare both when relevant.
+Always be practical, cite specific laws, and give actionable step-by-step guidance.
+Answer in the language the user writes in (Ukrainian, Russian, or English).`
+};
+
+function getSystemPrompt() {
+  return systemPrompts[currentGeo];
+}
+
+function cycleLang() {
+  const idx = langs.indexOf(currentLang);
+  currentLang = langs[(idx + 1) % langs.length];
+  document.querySelector('.lang-btn').textContent = langLabels[currentLang];
+
+  const placeholders = {
+    en: 'Ask your HR question...',
+    uk: 'Задайте питання з HR...',
+    ru: 'Задайте вопрос по HR...'
+  };
+  document.getElementById('input').placeholder = placeholders[currentLang];
+}
+
+function setGeo(geo) {
+  currentGeo = geo;
+  document.querySelectorAll('.geo-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('geo-' + geo).classList.add('active');
+}
+
+function setTopic(topic) {
+  document.querySelectorAll('.topic-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const questions = {
+    hiring: 'What is the complete hiring process for an IT company in Ukraine?',
+    contracts: 'What types of employment contracts are available in Ukraine for IT workers?',
+    dismissal: 'What are the legal grounds and procedure for dismissing an employee in Ukraine?',
+    vacation: 'How many vacation days are employees entitled to in Ukraine and how is it calculated?',
+    payroll: 'What payroll taxes and contributions does an employer pay in Ukraine?',
+    remote: 'What are the legal requirements for remote work contracts in Ukraine?',
+    kpi: 'How to create an effective KPI system for IT developers and engineers?',
+    onboarding: 'What is the best onboarding process for a new IT employee?'
+  };
+
+  document.getElementById('input').value = questions[topic] || '';
+  document.getElementById('input').focus();
+}
+
+function ask(question) {
+  document.getElementById('input').value = question;
+  sendMessage();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function addMessage(role, content) {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const avatar = role === 'ai' ? '👔' : '👤';
+  div.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-bubble">${formatText(content)}</div>
+  `;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+function formatText(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^### (.*)/gm, '<strong style="font-size:0.95rem;color:var(--accent)">$1</strong>')
+    .replace(/^## (.*)/gm, '<strong style="font-size:1rem;color:var(--accent)">$1</strong>')
+    .replace(/^- (.*)/gm, '• $1')
+    .replace(/\n/g, '<br>');
+}
+function showTyping() {
+  const welcome = document.getElementById('welcome');
+  if (welcome) welcome.remove();
+
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'typing';
+  div.innerHTML = `
+    <div class="msg-avatar">👔</div>
+    <div class="typing"><span></span><span></span><span></span></div>
+  `;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+let conversationHistory = [];
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  addMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+
+  showTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: getSystemPrompt(),
+        messages: conversationHistory
+      })
+    });
+
+    const data = await response.json();
+    const typing = document.getElementById('typing');
+    if (typing) typing.remove();
+
+    const reply = data.content?.[0]?.text || 'Sorry, I could not get a response. Please try again.';
+    conversationHistory.push({ role: 'assistant', content: reply });
+    addMessage('ai', reply);
+
+  } catch (err) {
+    const typing = document.getElementById('typing');
+    if (typing) typing.remove();
+    addMessage('ai', '⚠️ Connection error. Please check your internet and try again.');
+  }
+
+  isLoading = false;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('input').focus();
+}
+</script>
+</body>
+</html>
